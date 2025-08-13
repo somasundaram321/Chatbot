@@ -128,7 +128,8 @@ def generate_sql(user_question, conversation_history):
     When filtering by project.title or similar text column:
     - Use case-insensitive matching with ILIKE
     - Ignore spaces and hyphens in matching:
-      REPLACE(REPLACE(LOWER(project.title), ' ', ''), '-', '') ILIKE REPLACE(REPLACE(LOWER('%value%'), ' ', ''), '-', '')
+      REPLACE(REPLACE(LOWER(text_column), ' ', ''), '-', '') ILIKE '%' || REPLACE(REPLACE(LOWER(search_value), ' ', ''), '-', '') || '%'
+ 
 
     STRICT RULES:
     1. ALWAYS use "{TENANT_SCHEMA}"."table_name" format
