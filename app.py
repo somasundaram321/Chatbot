@@ -15,13 +15,13 @@ load_dotenv()
 TENANT_ID = "40c1b80f-7071-4cf6-8a06-cda221ff3f4d"
 TENANT_SCHEMA = f"tenant_{TENANT_ID}"
 DB_CONFIG = {
-    "host": os.getenv("DB_HOST"),
-    "dbname": os.getenv("DB_NAME"),
-    "user": os.getenv("DB_USER"),
-    "password": os.getenv("DB_PASSWORD"),
-    "port": os.getenv("DB_PORT", 5432),
+    "host": st.secrets("DB_HOST"),
+    "dbname": st.secrets("DB_NAME"),
+    "user": st.secrets("DB_USER"),
+    "password": st.secrets("DB_PASSWORD"),
+    "port": st.secrets("DB_PORT", 5432),
 }
-OPENAI_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_KEY = st.secrets("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_KEY)
 
 # --- RAG CONFIG ---
