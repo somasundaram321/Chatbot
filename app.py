@@ -19,7 +19,7 @@ DB_CONFIG = {
     "dbname": st.secrets["DB_NAME"],
     "user": st.secrets["DB_USER"],
     "password": st.secrets["DB_PASSWORD"],
-    "port": int(st.secrets("DB_PORT", 5432)),
+    "port": int(st.secrets.get("DB_PORT", 5432)),
 }
 OPENAI_KEY = st.secrets["OPENAI_API_KEY"]
 client = OpenAI(api_key=OPENAI_KEY)
