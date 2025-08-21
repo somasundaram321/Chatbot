@@ -25,7 +25,7 @@ OPENAI_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_KEY)
  
 # --- RAG CONFIG ---
-model = SentenceTransformer("all-MiniLM-L6-v2")
+model = SentenceTransformer("all-MiniLM-L6-v2", device="cpu")
 INDEX_FILE = "schema_index.faiss"
 CHUNKS_FILE = "schema_chunks.json"
  
