@@ -25,7 +25,7 @@ OPENAI_KEY = os.getenv("OPENAI_API_KEY")
 client = OpenAI(api_key=OPENAI_KEY)
  
 # --- RAG CONFIG ---
-model = SentenceTransformer("all-MiniLM-L6-v2", device="cpu")
+model = SentenceTransformer("all-MiniLM-L6-v2")
 INDEX_FILE = "schema_index.faiss"
 CHUNKS_FILE = "schema_chunks.json"
  
@@ -240,24 +240,24 @@ def ask_for_clarification(user_question, error_reason=None, result_data=None):
  
 # --- STREAMLIT APP ---
 st.title("GODESK AI Assistant")
- 
+
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "Hello! I'm your Workdesk data assistant. How can I help you today?"}]
- 
+
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
- 
+
 if prompt := st.chat_input("Ask about Workdesk data"):
     st.session_state.messages.append({"role": "user", "content": prompt})
- 
+
     with st.chat_message("user"):
         st.markdown(prompt)
- 
+
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         full_response = ""
- 
+
         try:
             # --- build conversation history for context ---
             conversation_history = []
@@ -267,14 +267,14 @@ if prompt := st.chat_input("Ask about Workdesk data"):
                         (st.session_state.messages[i]["content"],
                          st.session_state.messages[i+1]["content"])
                     )
- 
+
             # --- generate SQL from user question ---
             response = generate_sql(prompt, conversation_history)
- 
+
             if is_sql_query(response):
                 message_placeholder.markdown("Analysing...")
                 result = run_sql(response)
- 
+
                 if result.get("success"):
                     if result.get("data"):
                         # ✅ got valid results → summarize
@@ -289,7 +289,7 @@ if prompt := st.chat_input("Ask about Workdesk data"):
                             temperature=0.1
                         )
                         answer = summary_response.choices[0].message.content
-                        full_response = f"**Query Executed:**\n```sql\n{response}\n```\n\n**Answer:**\n{answer}"
+                        full_response = answer  # Changed: Only show the answer, not the query
                     else:
                         # ✅ query succeeded but returned no rows → clarify
                         full_response = ask_for_clarification(prompt, result_data=result.get("data"))
@@ -297,12 +297,12 @@ if prompt := st.chat_input("Ask about Workdesk data"):
                     # --- AI Self-correction if SQL failed ---
                     correction_prompt = f"""
                     The following SQL query failed:
- 
+
                     {response}
- 
+
                     Error message:
                     {result.get('error')}
- 
+
                     Please fix the SQL query so it runs successfully,
                     following the same formatting rules as before.
                     Only return the corrected SQL.
@@ -313,7 +313,7 @@ if prompt := st.chat_input("Ask about Workdesk data"):
                         temperature=0
                     )
                     corrected_sql = correction_response.choices[0].message.content.strip()
- 
+
                     if is_sql_query(corrected_sql):
                         retry_result = run_sql(corrected_sql)
                         if retry_result.get("success") and retry_result.get("data"):
@@ -328,7 +328,7 @@ if prompt := st.chat_input("Ask about Workdesk data"):
                                 temperature=0.1
                             )
                             answer = summary_response.choices[0].message.content
-                            full_response = f"**Corrected Query:**\n```sql\n{corrected_sql}\n```\n\n**Answer:**\n{answer}"
+                            full_response = answer  # Changed: Only show the answer, not the query
                         else:
                             # ✅ still failed after correction → clarify
                             full_response = ask_for_clarification(prompt, error_reason=retry_result.get("error"))
@@ -336,12 +336,13 @@ if prompt := st.chat_input("Ask about Workdesk data"):
                         # ✅ correction not SQL → clarify
                         full_response = ask_for_clarification(prompt, error_reason=result.get("error"))
             else:
-                # ✅ if generate_sql didn’t return SQL at all → clarify
+                # ✅ if generate_sql didn't return SQL at all → clarify
                 full_response = ask_for_clarification(prompt)
- 
+
         except Exception as e:
             full_response = f"Something went wrong: {str(e)}"
- 
+
         message_placeholder.markdown(full_response)
- 
+
     st.session_state.messages.append({"role": "assistant", "content": full_response})
+ 
