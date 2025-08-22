@@ -239,7 +239,7 @@ def ask_for_clarification(user_question, error_reason=None, result_data=None):
     return clarification_response.choices[0].message.content.strip()
  
 # --- STREAMLIT APP ---
-st.title("GODESK AI Assistant")
+st.title("Go Desk AI Assistant")
 
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "assistant", "content": "Hello! I'm your Workdesk data assistant. How can I help you today?"}]
