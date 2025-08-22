@@ -116,7 +116,7 @@ def generate_sql(user_question, conversation_history):
     context = ""
     if conversation_history:
         context = "Previous conversation:\n"
-        for i, (q, a) in enumerate(conversation_history[-10:]):
+        for i, (q, a) in enumerate(conversation_history[-3:]):
             context += f"Q{i+1}: {q}\nA{i+1}: {a}\n\n"
  
     prompt = f"""
